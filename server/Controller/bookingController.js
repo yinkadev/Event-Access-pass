@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const Booking = require("../models/booking");
 const Event = require("../models/event");
+const QRCode = require("qrcode");
 
 const bookEvent = async (req, res) => {
   let reservedEvent = null;
@@ -47,14 +48,18 @@ const bookEvent = async (req, res) => {
   });
 }
 
-    const booking = await Booking.create({
-      user: req.user._id,
-      event: reservedEvent._id,
-      quantity,
-      totalPrice: Number(reservedEvent.price || 0) * quantity,
-      ticketCode: `ACP-${crypto.randomBytes(5).toString("hex").toUpperCase()}`,
-    });
+   const ticketCode = `ACP-${crypto.randomBytes(5).toString("hex").toUpperCase()}`;
 
+const qrCode = await QRCode.toDataURL(ticketCode);
+
+const booking = await Booking.create({
+  user: req.user._id,
+  event: reservedEvent._id,
+  quantity,
+  totalPrice: Number(reservedEvent.price || 0) * quantity,
+  ticketCode,
+  qrCode,
+});
     return res.status(201).json({ success: true, message: "Booking created. Payment is pending.", booking });
   } catch (error) {
     // Return the reserved seats if booking creation failed after inventory was reduced.
@@ -75,6 +80,29 @@ const getMyBookings = async (req, res) => {
   }
 };
 
+
+const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate("user", "name email")
+      .populate("event", "title venue date price")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: bookings.length,
+      bookings,
+    });
+  } catch (error) {
+    console.error("Get all bookings error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load bookings.",
+    });
+  }
+};
+
+
 const getBookingById = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, message: "Invalid booking reference." });
@@ -87,6 +115,73 @@ const getBookingById = async (req, res) => {
     return res.status(500).json({ success: false, message: "Unable to load this booking." });
   }
 };
+
+
+const completeDemoPayment = async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid booking reference.",
+      });
+    }
+
+    const booking = await Booking.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.user._id,
+        paymentStatus: "pending",
+      },
+      {
+        $set: {
+          paymentStatus: "paid",
+          paymentReference: `DEMO-${crypto.randomBytes(6).toString("hex").toUpperCase()}`,
+        },
+      },
+      { new: true }
+    ).populate("event", "title venue date price image");
+
+    if (booking) {
+      return res.status(200).json({
+        success: true,
+        message: "Demo payment completed successfully.",
+        booking,
+      });
+    }
+
+    const existingBooking = await Booking.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!existingBooking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found.",
+      });
+    }
+
+    if (existingBooking.paymentStatus === "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "This booking has already been paid for.",
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "This booking cannot be paid for.",
+    });
+  } catch (error) {
+    console.error("Demo payment error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to complete demo payment.",
+    });
+  }
+};
+
 
 const verifyTicket = async (req, res) => {
   try {
@@ -118,4 +213,4 @@ const checkInTicket = async (req, res) => {
   }
 };
 
-module.exports = { bookEvent, getMyBookings, getBookingById, verifyTicket, checkInTicket };
+module.exports = { bookEvent, getMyBookings, getAllBookings, getBookingById, completeDemoPayment, verifyTicket, checkInTicket };

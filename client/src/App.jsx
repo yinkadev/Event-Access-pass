@@ -14,7 +14,9 @@ import NotFound from "./Pages/NotFound/NotFound";
 import Footer from "./Compnents/Footer/footer";
 import About from "./Pages/About/About.jsx";
 import ManageEvents from "./Pages/ManageEvents/ManageEvents";
-
+import ManageBookings from "./Pages/ManageBookings/ManageBookings";
+import QRScanner from "./Pages/QRScanner/QRScanner";
+import Payment from "./Pages/Payment/Payment";
 function App() {
   return (
     <>
@@ -32,6 +34,9 @@ function App() {
         <Route path="/verify-ticket/:ticketCode" element={<VerifyTicket />} />
         <Route path="/about" element={<About />} />
         <Route path="/manage-events" element={<ManageEvents />} />
+        <Route path="/manage-bookings" element={<ManageBookings />} />
+        <Route path="/qr-scanner" element={<QRScanner />} />
+        <Route path="/payment/:id" element={<Payment />} />
         <Route path="*" element={<NotFound />} />
     
       </Routes>

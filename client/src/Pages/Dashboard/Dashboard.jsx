@@ -60,6 +60,22 @@ function Dashboard() {
             <small>Edit, cancel or delete events</small>
           </Link>
         )}
+
+        {user?.role === "admin" && (
+  <Link to="/manage-bookings">
+    <span>📋</span>
+    <strong>Manage bookings</strong>
+    <small>View attendees, payments and tickets</small>
+  </Link>
+)}
+
+{user?.role === "admin" && (
+  <Link to="/qr-scanner">
+    <span>📷</span>
+    <strong>Scan tickets</strong>
+    <small>Scan QR codes and verify attendee tickets</small>
+  </Link>
+)}
       </div>
     </main>
   );

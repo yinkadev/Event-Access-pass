@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../../services/api";
-import QRCode from "react-qr-code";
+
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./Ticket.css";
@@ -39,7 +39,7 @@ function Ticket() {
 
   const isPaid = booking.paymentStatus === "paid";
   const event = booking.event || {};
-  const verificationUrl = `${window.location.origin}/verify-ticket/${booking.ticketCode}`;
+ const verificationUrl = booking.ticketCode;
 
   return (
     <section className="ticket-page">
@@ -54,12 +54,28 @@ function Ticket() {
           <p><strong>Payment:</strong> <span className={isPaid ? "confirmed" : "pending-payment"}>{isPaid ? "Paid" : "Pending"}</span></p>
           <div className="ticket-code"><h3>Booking reference</h3><p>{booking.ticketCode}</p></div>
           <div className="qr-section">
-            <h3>{isPaid ? "Scan at entrance" : "QR code available after payment"}</h3>
-            {isPaid ? <QRCode value={verificationUrl} size={150} /> : <p>Your booking is recorded, but this is not an admission ticket until payment is confirmed.</p>}
+           <h3>{isPaid ? "Scan at entrance" : "Booking QR code"}</h3>
+           {isPaid ? (
+  <img
+    src={booking.qrCode}
+    alt="AccessPass ticket QR code"
+    className="ticket-qr-code"
+  />
+) : (
+  <p>Your booking is recorded, but this is not an admission ticket until payment is confirmed.</p>
+)}
           </div>
         </div>
       </div>
       <button className="download-btn" onClick={downloadTicket}>Download booking PDF</button>
+      {!isPaid && (
+  <Link
+    to={`/payment/${booking._id}`}
+    className="pay-ticket-btn"
+  >
+    Pay Now
+  </Link>
+)}
       <p><Link to="/my-bookings">Back to my bookings</Link></p>
     </section>
   );
