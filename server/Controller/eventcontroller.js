@@ -53,6 +53,25 @@ const getEvents = async (req, res) => {
   }
 };
 
+const getAdminEvents = async (req, res) => {
+  try {
+    const events = await Event.find()
+      .populate("organizer", "name email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    console.error("Get admin events error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load events.",
+    });
+  }
+};
 
 
 const getEventById = async (req, res) => {
@@ -269,6 +288,7 @@ const cancelEvent = async (req, res) => {
 module.exports = {
   createEvent,
   getEvents,
+ getAdminEvents,
   getEventById,
   updateEvent,
   deleteEvent,

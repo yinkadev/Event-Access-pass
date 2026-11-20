@@ -7,6 +7,7 @@ const admin = require("../middleware/adminMiddleware");
 const {
   createEvent,
   getEvents,
+ getAdminEvents,
   getEventById,
   updateEvent,
   deleteEvent,
@@ -15,6 +16,7 @@ const {
 
 
 router.get("/", getEvents);
+router.get("/admin", protect, admin, getAdminEvents);
 
 router.post("/", protect, admin, createEvent);
 router.put("/:id", protect, admin, updateEvent);

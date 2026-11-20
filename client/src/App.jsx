@@ -13,6 +13,7 @@ import VerifyTicket from "./Pages/VerifyTicket/VerifyTicket";
 import NotFound from "./Pages/NotFound/NotFound";
 import Footer from "./Compnents/Footer/footer";
 import About from "./Pages/About/About.jsx";
+import ManageEvents from "./Pages/ManageEvents/ManageEvents";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/ticket/:id" element={<Ticket />} />
         <Route path="/verify-ticket/:ticketCode" element={<VerifyTicket />} />
         <Route path="/about" element={<About />} />
+        <Route path="/manage-events" element={<ManageEvents />} />
         <Route path="*" element={<NotFound />} />
     
       </Routes>
