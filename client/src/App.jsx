@@ -18,6 +18,9 @@ import ManageBookings from "./Pages/ManageBookings/ManageBookings";
 import QRScanner from "./Pages/QRScanner/QRScanner";
 import Payment from "./Pages/Payment/Payment";
 import Contact from "./Pages/Contact/Contact";
+import FAQ from "./Pages/FAQ/FAQ";
+import Terms from "./Pages/Terms/Terms";
+import PrivacyPolicy from "./Pages/PrivacyPolicy/PrivacyPolicy";
 function App() {
   return (
     <>
@@ -39,6 +42,10 @@ function App() {
         <Route path="/qr-scanner" element={<QRScanner />} />
         <Route path="/payment/:id" element={<Payment />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="*" element={<NotFound />} />
     
       </Routes>

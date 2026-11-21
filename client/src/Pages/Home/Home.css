@@ -153,3 +153,18 @@
 .home-contact p { color: #d1d7df; font-size: 15px; line-height: 1.8; margin-bottom: 28px; }
 .home-contact-button { display: inline-block; background: #fff; color: #17202a; padding: 13px 28px; border-radius: 7px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s ease; }
 .home-contact-button:hover { background: #dfe5ec; }
+
+
+.home-faq { background: #f7f8fa; padding: 70px 8%; }
+.home-faq-heading { text-align: center; max-width: 650px; margin: 0 auto 35px; }
+.home-faq-heading span { color: #777; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+.home-faq-heading h2 { color: #17202a; font-size: 32px; margin: 12px 0; }
+.home-faq-heading p { color: #68717d; font-size: 14px; line-height: 1.8; }
+.home-faq-list { max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.home-faq-item { background: #fff; padding: 22px 25px; border: 1px solid #e5e8ed; border-radius: 9px; }
+.home-faq-item h3 { color: #17202a; font-size: 16px; margin: 0 0 10px; }
+.home-faq-item p { color: #68717d; font-size: 14px; line-height: 1.8; margin: 0; }
+.home-faq-link { text-align: center; margin-top: 30px; }
+.home-faq-link a { display: inline-block; background: #17202a; color: #fff; padding: 13px 25px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.3s ease; }
+.home-faq-link a:hover { background: #344454; }
+@media (max-width: 600px) { .home-faq { padding: 50px 6%; } .home-faq-heading h2 { font-size: 26px; } .home-faq-item { padding: 18px; } }

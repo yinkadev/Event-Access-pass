@@ -49,6 +49,37 @@ function Home() {
     </Link>
   </div>
 </section>
+
+
+<section className="home-faq">
+  <div className="home-faq-heading">
+    <span>NEED SOME HELP?</span>
+    <h2>Got Questions?</h2>
+    <p>Here are some quick answers to help you get started with AccessPass.</p>
+  </div>
+
+  <div className="home-faq-list">
+    <div className="home-faq-item">
+      <h3>How do I book an event?</h3>
+      <p>Create an account, browse available events, select your preferred event and follow the booking instructions.</p>
+    </div>
+
+    <div className="home-faq-item">
+      <h3>How do I receive my ticket?</h3>
+      <p>Once your payment is confirmed, your ticket will be available in My Bookings with a QR code and PDF download.</p>
+    </div>
+
+    <div className="home-faq-item">
+      <h3>Can I use my ticket more than once?</h3>
+      <p>No. Each ticket can only be used once. After successful check-in, it cannot be used for another admission.</p>
+    </div>
+  </div>
+
+  <div className="home-faq-link">
+    <Link to="/faq">View All FAQs →</Link>
+  </div>
+</section>
+
     </main>
     
   );

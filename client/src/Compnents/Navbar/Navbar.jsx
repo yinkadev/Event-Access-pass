@@ -42,6 +42,10 @@ function Navbar() {
   <NavLink to="/contact">Contact Us</NavLink>
 </li>
 
+<li>
+  <NavLink to="/faq">FAQs</NavLink>
+</li>
+
         {token && (
           <>
             <li>
