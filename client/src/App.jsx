@@ -17,6 +17,7 @@ import ManageEvents from "./Pages/ManageEvents/ManageEvents";
 import ManageBookings from "./Pages/ManageBookings/ManageBookings";
 import QRScanner from "./Pages/QRScanner/QRScanner";
 import Payment from "./Pages/Payment/Payment";
+import Contact from "./Pages/Contact/Contact";
 function App() {
   return (
     <>
@@ -37,6 +38,7 @@ function App() {
         <Route path="/manage-bookings" element={<ManageBookings />} />
         <Route path="/qr-scanner" element={<QRScanner />} />
         <Route path="/payment/:id" element={<Payment />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
     
       </Routes>

@@ -3,6 +3,84 @@ const mongoose = require("mongoose");
 const Booking = require("../models/booking");
 const Event = require("../models/event");
 const QRCode = require("qrcode");
+const { sendEmail } = require("../utils/EmailService");
+
+const sendBookingNotification = async (bookingId, paymentConfirmed = false) => {
+  const booking = await Booking.findById(bookingId)
+    .populate("user", "name email")
+    .populate("event", "title venue date");
+
+  if (!booking || !booking.user?.email) {
+    throw new Error("Booking customer email could not be found.");
+  }
+
+  const customerName = booking.user.name || "Customer";
+  const eventTitle = booking.event?.title || "Your event";
+  const eventVenue = booking.event?.venue || "To be confirmed";
+  const eventDate = booking.event?.date
+    ? new Date(booking.event.date).toLocaleString("en-GB")
+    : "To be confirmed";
+
+  const qrBase64 = booking.qrCode?.split(",")[1];
+
+  const attachments = [];
+
+  if (paymentConfirmed && qrBase64) {
+    attachments.push({
+      filename: "accesspass-ticket-qr.png",
+      content: Buffer.from(qrBase64, "base64"),
+      contentType: "image/png",
+      cid: "accesspass-qr",
+    });
+  }
+
+  const subject = paymentConfirmed
+    ? `Your AccessPass ticket is confirmed - ${eventTitle}`
+    : `Booking confirmation - ${eventTitle}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #17202a;">
+      <h2 style="color: #17202a;">${paymentConfirmed ? "Your ticket is confirmed!" : "Your booking is confirmed!"}</h2>
+
+      <p>Hello ${customerName},</p>
+
+      <p>
+        ${paymentConfirmed
+          ? "Your payment has been confirmed. Your AccessPass ticket is ready."
+          : "We've successfully recorded your booking. Please complete payment to activate your admission ticket."}
+      </p>
+
+      <div style="background: #f5f6f8; padding: 20px; border-radius: 8px;">
+        <h3>${eventTitle}</h3>
+        <p><strong>Venue:</strong> ${eventVenue}</p>
+        <p><strong>Date:</strong> ${eventDate}</p>
+        <p><strong>Ticket quantity:</strong> ${booking.quantity}</p>
+        <p><strong>Total:</strong> ${Number(booking.totalPrice).toLocaleString("en-GB")}</p>
+        <p><strong>Ticket reference:</strong> ${booking.ticketCode}</p>
+        <p><strong>Payment status:</strong> ${paymentConfirmed ? "Paid" : "Pending"}</p>
+      </div>
+
+      ${paymentConfirmed && qrBase64
+        ? `<div style="text-align: center; margin-top: 25px;">
+             <h3>Your admission QR code</h3>
+             <img src="cid:accesspass-qr" alt="AccessPass ticket QR code" width="180" height="180" />
+             <p>Present this QR code at the event entrance.</p>
+           </div>`
+        : ""}
+
+      <p style="margin-top: 25px;">Thank you for choosing AccessPass.</p>
+      <p><strong>The AccessPass Team</strong></p>
+    </div>
+  `;
+
+  await sendEmail({
+    to: booking.user.email,
+    subject,
+    html,
+    text: `Hello ${customerName}, your booking reference is ${booking.ticketCode}. Payment status: ${paymentConfirmed ? "Paid" : "Pending"}.`,
+    attachments,
+  });
+};
 
 const bookEvent = async (req, res) => {
   let reservedEvent = null;
@@ -59,6 +137,19 @@ const booking = await Booking.create({
   totalPrice: Number(reservedEvent.price || 0) * quantity,
   ticketCode,
   qrCode,
+});
+
+// Send booking confirmation without interrupting a successful booking.
+try {
+  await sendBookingNotification(booking._id, false);
+} catch (emailError) {
+  console.error("Booking confirmation email failed:", emailError);
+}
+
+return res.status(201).json({
+  success: true,
+  message: "Booking created. Payment is pending.",
+  booking,
 });
     return res.status(201).json({ success: true, message: "Booking created. Payment is pending.", booking });
   } catch (error) {
@@ -141,13 +232,20 @@ const completeDemoPayment = async (req, res) => {
       { new: true }
     ).populate("event", "title venue date price image");
 
-    if (booking) {
-      return res.status(200).json({
-        success: true,
-        message: "Demo payment completed successfully.",
-        booking,
-      });
-    }
+   if (booking) {
+  // Send payment confirmation and QR code without interrupting payment.
+  try {
+    await sendBookingNotification(booking._id, true);
+  } catch (emailError) {
+    console.error("Payment confirmation email failed:", emailError);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Demo payment completed successfully.",
+    booking,
+  });
+}
 
     const existingBooking = await Booking.findOne({
       _id: req.params.id,

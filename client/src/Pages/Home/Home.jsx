@@ -36,8 +36,21 @@ function Home() {
     </Link>
   </div>
 </section>
-
+<section className="home-contact">
+  <div className="home-contact-content">
+    <span>WE'RE HERE TO HELP</span>
+    <h2>Have a question?</h2>
+    <p>
+      Need help with a booking, a ticket or finding your next
+      experience? Our team is ready to hear from you.
+    </p>
+    <Link to="/contact" className="home-contact-button">
+      Get in Touch
+    </Link>
+  </div>
+</section>
     </main>
+    
   );
 }
 

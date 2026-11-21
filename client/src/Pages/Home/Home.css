@@ -144,3 +144,12 @@
     padding: 13px 18px;
   }
 }
+
+
+.home-contact { background: #17202a; padding: 75px 8%; text-align: center; color: #fff; }
+.home-contact-content { max-width: 650px; margin: 0 auto; }
+.home-contact-content > span { color: #a9b5c4; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+.home-contact h2 { font-size: clamp(30px, 5vw, 42px); margin: 15px 0; }
+.home-contact p { color: #d1d7df; font-size: 15px; line-height: 1.8; margin-bottom: 28px; }
+.home-contact-button { display: inline-block; background: #fff; color: #17202a; padding: 13px 28px; border-radius: 7px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s ease; }
+.home-contact-button:hover { background: #dfe5ec; }
