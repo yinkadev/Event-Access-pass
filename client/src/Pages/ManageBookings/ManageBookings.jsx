@@ -32,30 +32,48 @@ function ManageBookings() {
   }, []);
 
   const filteredBookings = useMemo(() => {
-    return bookings.filter((booking) => {
-      const searchTerm = search.toLowerCase();
+    return bookings
+      .map((booking) => {
+        const tickets = booking.tickets || [];
 
-      const attendeeName = booking.user?.name?.toLowerCase() || "";
-      const attendeeEmail = booking.user?.email?.toLowerCase() || "";
-      const eventTitle = booking.event?.title?.toLowerCase() || "";
-      const ticketCode = booking.ticketCode?.toLowerCase() || "";
+        const matchingTickets = tickets.filter((ticket) => {
+          const searchTerm = search.toLowerCase();
 
-      const matchesSearch =
-        attendeeName.includes(searchTerm) ||
-        attendeeEmail.includes(searchTerm) ||
-        eventTitle.includes(searchTerm) ||
-        ticketCode.includes(searchTerm);
+          const attendeeName =
+            booking.user?.name?.toLowerCase() || "";
+          const attendeeEmail =
+            booking.user?.email?.toLowerCase() || "";
+          const eventTitle =
+            booking.event?.title?.toLowerCase() || "";
 
-      const matchesPayment =
-        paymentFilter === "all" ||
-        booking.paymentStatus === paymentFilter;
+          const matchesSearch =
+            attendeeName.includes(searchTerm) ||
+            attendeeEmail.includes(searchTerm) ||
+            eventTitle.includes(searchTerm) ||
+            ticket.ticketCode?.toLowerCase().includes(searchTerm);
 
-      const matchesTicket =
-        ticketFilter === "all" ||
-        booking.ticketStatus === ticketFilter;
+          const matchesTicket =
+            ticketFilter === "all" ||
+            ticket.ticketStatus === ticketFilter;
 
-      return matchesSearch && matchesPayment && matchesTicket;
-    });
+          return matchesSearch && matchesTicket;
+        });
+
+        const matchesPayment =
+          paymentFilter === "all" ||
+          booking.paymentStatus === paymentFilter;
+
+        return {
+          ...booking,
+          matchingTickets,
+          matchesPayment,
+        };
+      })
+      .filter(
+        (booking) =>
+          booking.matchesPayment &&
+          booking.matchingTickets.length > 0
+      );
   }, [bookings, search, paymentFilter, ticketFilter]);
 
   const paidCount = bookings.filter(
@@ -66,9 +84,14 @@ function ManageBookings() {
     (booking) => booking.paymentStatus === "pending"
   ).length;
 
-  const checkedInCount = bookings.filter(
-    (booking) => booking.checkedIn
-  ).length;
+  const checkedInCount = bookings.reduce(
+    (total, booking) =>
+      total +
+      (booking.tickets || []).filter(
+        (ticket) => ticket.checkedIn
+      ).length,
+    0
+  );
 
   const formatDate = (date) => {
     if (!date) return "Not available";
@@ -181,45 +204,69 @@ function ManageBookings() {
               </thead>
 
               <tbody>
-                {filteredBookings.map((booking) => (
-                  <tr key={booking._id}>
-                    <td>
-                      <strong>{booking.user?.name || "Unknown user"}</strong>
-                      <small>{booking.user?.email || "No email available"}</small>
-                    </td>
+                {filteredBookings.map((booking) =>
+                  booking.matchingTickets.map((ticket, index) => (
+                    <tr key={ticket._id || ticket.ticketCode}>
+                      <td>
+                        <strong>
+                          {booking.user?.name || "Unknown user"}
+                        </strong>
+                        <small>
+                          {booking.user?.email || "No email available"}
+                        </small>
+                      </td>
 
-                    <td>
-                      <strong>{booking.event?.title || "Event unavailable"}</strong>
-                      <small>{booking.event?.venue || "Venue unavailable"}</small>
-                    </td>
+                      <td>
+                        <strong>
+                          {booking.event?.title || "Event unavailable"}
+                        </strong>
+                        <small>
+                          {booking.event?.venue || "Venue unavailable"}
+                        </small>
+                      </td>
 
-                    <td className="booking-code">{booking.ticketCode}</td>
-                    <td>{booking.quantity}</td>
-                    <td>{formatPrice(booking.totalPrice)}</td>
+                      <td className="booking-code">
+                        {ticket.ticketCode}
+                      </td>
 
-                    <td>
-                      <span className={`booking-status ${booking.paymentStatus}`}>
-                        {booking.paymentStatus}
-                      </span>
-                    </td>
+                      <td>
+                        {index + 1} of {booking.quantity}
+                      </td>
 
-                    <td>
-                      <span className={`booking-status ${booking.ticketStatus}`}>
-                        {booking.ticketStatus}
-                      </span>
-                    </td>
+                      <td>{formatPrice(booking.totalPrice)}</td>
 
-                    <td>
-                      {booking.checkedIn ? (
-                        <span className="checkin-yes">Checked in</span>
-                      ) : (
-                        <span className="checkin-no">Not checked in</span>
-                      )}
-                    </td>
+                      <td>
+                        <span
+                          className={`booking-status ${booking.paymentStatus}`}
+                        >
+                          {booking.paymentStatus}
+                        </span>
+                      </td>
 
-                    <td>{formatDate(booking.createdAt)}</td>
-                  </tr>
-                ))}
+                      <td>
+                        <span
+                          className={`booking-status ${ticket.ticketStatus}`}
+                        >
+                          {ticket.ticketStatus}
+                        </span>
+                      </td>
+
+                      <td>
+                        {ticket.checkedIn ? (
+                          <span className="checkin-yes">
+                            Checked in
+                          </span>
+                        ) : (
+                          <span className="checkin-no">
+                            Not checked in
+                          </span>
+                        )}
+                      </td>
+
+                      <td>{formatDate(booking.createdAt)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -227,7 +274,13 @@ function ManageBookings() {
 
         {!loading && !error && (
           <p className="booking-results-count">
-            Showing {filteredBookings.length} of {bookings.length} bookings
+            Showing{" "}
+            {filteredBookings.reduce(
+              (total, booking) =>
+                total + booking.matchingTickets.length,
+              0
+            )}{" "}
+            tickets across {filteredBookings.length} bookings
           </p>
         )}
       </section>

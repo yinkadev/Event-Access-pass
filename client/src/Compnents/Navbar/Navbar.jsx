@@ -1,20 +1,25 @@
+
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
-
   const location = useLocation();
+
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
     setToken(localStorage.getItem("token"));
+    setMenuOpen(false);
   }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setToken(null);
+    setMenuOpen(false);
     window.dispatchEvent(new Event("accesspass-auth-change"));
     navigate("/");
   };
@@ -25,37 +30,28 @@ function Navbar() {
         <NavLink to="/">🎟️ AccessPass</NavLink>
       </div>
 
-      <ul className="nav-links">
-        <li>
-          <NavLink to="/">Home</NavLink>
-        </li>
-        
-        <li>
-          <NavLink to="/events">Events</NavLink>
-        </li>
+      <button
+        className={`menu-toggle ${menuOpen ? "open" : ""}`}
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle navigation menu"
+        aria-expanded={menuOpen}
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-         <li>
-          <NavLink to="/about">About Us</NavLink>
-         </li>
-
-         <li>
-  <NavLink to="/contact">Contact Us</NavLink>
-</li>
-
-<li>
-  <NavLink to="/faq">FAQs</NavLink>
-</li>
+      <ul className={`nav-links ${menuOpen ? "open" : ""}`}>
+        <li><NavLink to="/">Home</NavLink></li>
+        <li><NavLink to="/events">Events</NavLink></li>
+        <li><NavLink to="/about">About Us</NavLink></li>
+        <li><NavLink to="/contact">Contact Us</NavLink></li>
+        <li><NavLink to="/faq">FAQs</NavLink></li>
 
         {token && (
           <>
-            <li>
-              <NavLink to="/my-bookings">My Bookings</NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/dashboard">Dashboard</NavLink>
-            </li>
-
+            <li><NavLink to="/my-bookings">My Bookings</NavLink></li>
+            <li><NavLink to="/dashboard">Dashboard</NavLink></li>
             <li>
               <button className="logout-btn" onClick={handleLogout}>
                 Logout
@@ -66,10 +62,7 @@ function Navbar() {
 
         {!token && (
           <>
-            <li>
-              <NavLink to="/login">Login</NavLink>
-            </li>
-
+            <li><NavLink to="/login">Login</NavLink></li>
             <li>
               <NavLink to="/register" className="register-btn">
                 Register

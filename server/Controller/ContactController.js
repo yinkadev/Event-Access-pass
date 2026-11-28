@@ -12,20 +12,35 @@ const escapeHTML = (value) => {
 
 const submitContactMessage = async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message } = req.body || {};
 
-    if (!name || !email || !subject || !message) {
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof subject !== "string" ||
+      typeof message !== "string"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide valid details for all fields.",
+      });
+    }
+
+    // Clean the submitted values
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanSubject = subject.trim();
+    const cleanMessage = message.trim();
+
+    // Check for empty fields
+    if (!cleanName || !cleanEmail || !cleanSubject || !cleanMessage) {
       return res.status(400).json({
         success: false,
         message: "Please complete all fields.",
       });
     }
 
-    const cleanName = String(name).trim();
-    const cleanEmail = String(email).trim().toLowerCase();
-    const cleanSubject = String(subject).trim();
-    const cleanMessage = String(message).trim();
-
+    // Restrict field lengths
     if (
       cleanName.length > 100 ||
       cleanEmail.length > 254 ||
@@ -38,30 +53,32 @@ const submitContactMessage = async (req, res) => {
       });
     }
 
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(cleanEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address.",
+      });
+    }
 
-if (!emailPattern.test(cleanEmail)) {
-  return res.status(400).json({
-    success: false,
-    message: "Please enter a valid email address.",
-  });
-}
+    // Prevent newlines in the email address and subject
+    if (/[\r\n]/.test(cleanEmail) || /[\r\n]/.test(cleanSubject)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email address or subject.",
+      });
+    }
 
-if (/[\r\n]/.test(cleanEmail)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid email address.",
-  });
-}
-
-
+    // Check support email configuration
     const supportEmail = process.env.EMAIL_FROM_ADDRESS;
 
     if (!supportEmail) {
       throw new Error("Support email is not configured.");
     }
 
+    // Send enquiry to AccessPass support
     await sendEmail({
       to: supportEmail,
       replyTo: cleanEmail,
@@ -87,6 +104,7 @@ ${cleanMessage}`,
       `,
     });
 
+    // Send acknowledgement email to the customer
     try {
       await sendEmail({
         to: cleanEmail,

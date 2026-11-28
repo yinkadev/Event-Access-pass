@@ -23,20 +23,32 @@ const eventSchema = new mongoose.Schema(
       required: true,
     },
 
-    price: {
-      type: Number,
-      default: 0,
-    },
+   price: {
+  type: Number,
+  required: true,
+  default: 0,
+  min: [0, "Event price cannot be negative."],
+},
 
-    totalTickets: {
-      type: Number,
-      required: true,
-    },
+totalTickets: {
+  type: Number,
+  required: true,
+  min: [1, "An event must have at least one ticket."],
+  validate: {
+    validator: Number.isInteger,
+    message: "Total tickets must be a whole number.",
+  },
+},
 
-    ticketsAvailable: {
-      type: Number,
-      required: true,
-    },
+   ticketsAvailable: {
+  type: Number,
+  required: true,
+  min: [0, "Available tickets cannot be negative."],
+  validate: {
+    validator: Number.isInteger,
+    message: "Available tickets must be a whole number.",
+  },
+},
 
     image: {
       type: String,

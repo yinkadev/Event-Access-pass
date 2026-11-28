@@ -1,41 +1,133 @@
+
 .ticket-page {
+  width: 100%;
   min-height: 100vh;
   background: #f5f7fb;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px;
+  gap: 22px;
+}
+
+/* Booking summary */
+.booking-summary {
+  width: min(700px, 100%);
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
+.booking-summary h1 {
+  color: #2563eb;
+  margin-bottom: 18px;
+}
+
+.booking-summary p {
+  margin: 12px 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Payment notice */
+.payment-notice {
+  width: min(700px, 100%);
+  padding: 20px 24px;
+  background: #fff8e8;
+  border: 1px solid #f2d79b;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.payment-notice p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.pay-ticket-btn {
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 13px 30px;
+  background: #17202a;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 7px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pay-ticket-btn:hover {
+  background: #293746;
+}
+
+/* Individual tickets */
+.ticket-page > h2 {
+  width: min(700px, 100%);
+  margin: 8px 0 0;
+  color: #17202a;
+}
+
+.individual-tickets {
+  width: min(700px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.individual-ticket-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 }
 
 .ticket {
-  width: 700px;
+  width: 100%;
   background: white;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .ticket-banner {
+  display: block;
   width: 100%;
   height: 260px;
   object-fit: cover;
 }
 
 .ticket-body {
-  padding: 30px;
+  padding: clamp(18px, 4vw, 30px);
 }
 
-.ticket-body h1 {
+.ticket-body h2 {
   color: #2563eb;
   margin-bottom: 20px;
+  overflow-wrap: anywhere;
 }
 
 .ticket-body p {
   margin: 12px 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .confirmed {
   color: green;
+  font-weight: bold;
+}
+
+.pending-payment {
+  color: #b7791f;
   font-weight: bold;
 }
 
@@ -45,6 +137,7 @@
   padding: 15px;
   border-left: 5px solid #2563eb;
   border-radius: 8px;
+  overflow-wrap: anywhere;
 }
 
 .ticket-code p {
@@ -52,26 +145,6 @@
   font-weight: bold;
   letter-spacing: 2px;
 }
-
-.download-btn {
-  width: 100%;
-  margin-top: 25px;
-  padding: 14px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.download-btn:hover {
-  background: #1d4ed8;
-}
-.pay-ticket-btn { display: block; width: fit-content; margin: 20px auto; padding: 13px 30px; background: #17202a; color: #fff; text-decoration: none; border-radius: 7px; font-weight: 600; text-align: center; }
-.pay-ticket-btn:hover { background: #293746; }
-
-.ticket-qr-code { display: block; width: 150px; height: 150px; object-fit: contain; margin: 15px auto; }
 
 .qr-section {
   margin-top: 30px;
@@ -81,4 +154,113 @@
 .qr-section h3 {
   margin-bottom: 15px;
   color: #2563eb;
+}
+
+.ticket-qr-code {
+  display: block;
+  width: 150px;
+  height: 150px;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 15px auto;
+}
+
+/* Ticket action buttons */
+.download-btn,
+.back-bookings-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 46px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.download-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.download-btn:hover {
+  background: #1d4ed8;
+}
+
+.back-bookings-wrapper {
+  width: min(700px, 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.back-bookings-btn {
+  background: #e2e8f0;
+  color: #17202a;
+  transition: background 0.2s ease;
+}
+
+.back-bookings-btn:hover {
+  background: #cbd5e1;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .ticket-page {
+    padding: 22px 12px 35px;
+    gap: 18px;
+  }
+
+  .booking-summary {
+    padding: 20px;
+  }
+
+  .ticket {
+    border-radius: 13px;
+  }
+
+  .ticket-banner {
+    height: 190px;
+  }
+
+  .ticket-body h2 {
+    font-size: 22px;
+  }
+
+  .ticket-code p {
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+
+  .download-btn,
+  .back-bookings-btn,
+  .pay-ticket-btn {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .ticket-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .ticket-body {
+    padding: 16px;
+  }
+
+  .download-btn,
+  .back-bookings-btn,
+  .pay-ticket-btn {
+    padding: 11px 15px;
+    font-size: 13px;
+  }
 }

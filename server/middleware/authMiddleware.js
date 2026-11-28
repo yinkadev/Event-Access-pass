@@ -1,41 +1,78 @@
+
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const protect = async (req, res, next) => {
   try {
-    let token;
+    // Check that the JWT secret is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is missing from environment variables.");
 
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
-    if (!token) {
-      return res.status(401).json({
+      return res.status(500).json({
         success: false,
-        message: "Access denied. No token provided.",
+        message: "Server authentication configuration error.",
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Require the correct Bearer token format
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Access denied. A valid authentication token is required.",
+      });
+    }
+
+    const token = authHeader.slice(7).trim();
+
+    if (!token || token.includes(" ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid authentication token.",
+      });
+    }
+
+    // Verify the JWT
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET, {
+        algorithms: ["HS256"],
+      });
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token.",
+      });
+    }
+
+    // Validate the user ID contained in the token
+    if (
+      !decoded ||
+      typeof decoded.id !== "string" ||
+      !/^[a-fA-F0-9]{24}$/.test(decoded.id)
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid authentication token.",
+      });
+    }
+
+    // Retrieve the current user from the database
     req.user = await User.findById(decoded.id).select("-password");
 
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: "User not found.",
+        message: "User account not found.",
       });
     }
 
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token.",
-    });
+    console.error("Authentication middleware error:", error);
+    next(error);
   }
 };
 

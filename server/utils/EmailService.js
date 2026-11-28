@@ -12,9 +12,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async ({ to, subject, html, text, attachments, replyTo }) => {
-    console.log("ACCESSPASS EMAIL FUNCTION CALLED");
-console.log("Recipient:", to);
-console.log("Subject:", subject);
+
   if (
     !process.env.BREVO_SMTP_USER ||
     !process.env.BREVO_SMTP_KEY ||
@@ -22,7 +20,7 @@ console.log("Subject:", subject);
   ) {
     throw new Error("Email configuration is incomplete. Check your server .env file.");
   }
-console.log("Attempting to send email through Brevo...");
+
  return transporter.sendMail({
     
   from: `"${process.env.EMAIL_FROM_NAME || "AccessPass"}" <${process.env.EMAIL_FROM_ADDRESS}>`,
